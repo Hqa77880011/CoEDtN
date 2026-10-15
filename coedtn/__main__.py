@@ -283,6 +283,11 @@ def evaluate(args, cfg):
                 * cfg["component_size_mm"]
             )
             hotspot = np.linalg.norm(xy[np.argmax(pred)] - xy[np.argmax(truth)])
+            component_gap = (
+                100
+                * np.linalg.norm(kg - rk, axis=(-2, -1))
+                / np.maximum(np.linalg.norm(rk, axis=(-2, -1)), 1e-12)
+            )
             rows.append(
                 {
                     "width": width,
@@ -293,6 +298,8 @@ def evaluate(args, cfg):
                         / max(np.ptp(truth), 1e-12)
                     ),
                     "hotspot_mm": float(hotspot),
+                    "gap_score": float(np.mean(component_gap)),
+                    "component_gap_scores": component_gap.tolist(),
                     "flux_residual_pct": float(
                         100 * np.linalg.norm(residual) / max(np.sum(power), 1e-12)
                     ),
